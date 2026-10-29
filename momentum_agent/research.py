@@ -27,9 +27,10 @@ SLAB_TAX = 0.312                     # 30% + 4% cess
 GOLD_LTCG = 0.125 * 1.04             # gold ETFs held > 12 months
 INFLATION = 0.06
 
-# Every variant overrides StrategyConfig defaults; the 10% stop is part of the default config.
+# Every variant overrides StrategyConfig defaults; stops are set explicitly so a default change can't move results.
 VARIANTS = {
-    "A_baseline_stop10":   dict(),
+    "A_baseline_stop10":   dict(stop_loss_pct=0.10),
+    "S_stop20_cash":       dict(stop_loss_pct=0.20, cash_yield=0.045),
     "B_no_stop":           dict(stop_loss_pct=None),
     "C_no_stop_cash":      dict(stop_loss_pct=None, cash_yield=0.045),
     "D_monthly":           dict(stop_loss_pct=None, cash_yield=0.045, rebalance="M"),
@@ -207,7 +208,7 @@ def main():
     debt_daily = (1 + DEBT_YIELD_PRE_TAX * (1 - SLAB_TAX)) ** (1 / TRADING_DAYS) - 1
     debt = pd.Series((1 + debt_daily) ** np.arange(len(nifty)), index=nifty.index) * args.capital
 
-    best = [n for n in ("N_rexit_lowvol_15", "C_no_stop_cash", "M_rexit_lowvol") if n in curves]
+    best = [n for n in ("S_stop20_cash", "N_rexit_lowvol_15", "C_no_stop_cash", "M_rexit_lowvol") if n in curves]
     for core in best:
         for w_eq, w_gold, w_debt in ((0.7, 0.15, 0.15), (0.6, 0.2, 0.2), (0.5, 0.2, 0.3)):
             name = f"MIX_{core.split('_')[0]}_{int(w_eq*100)}/{int(w_gold*100)}/{int(w_debt*100)}"
@@ -224,7 +225,7 @@ def main():
 
     # Layoff stress test: what if the layoff starts in the worst possible month?
     wd_rows = []
-    for name in [n for n in curves if n.startswith(("MIX_", "N_", "C_", "Nifty"))]:
+    for name in [n for n in curves if n.startswith(("MIX_", "S_", "N_", "C_", "Nifty"))]:
         row = {"portfolio": name, "sustainable_rate_8y": sustainable_rate(curves[name])}
         for monthly in (15_000, 30_000):
             r = withdrawal_test(curves[name], args.capital, monthly, 12)

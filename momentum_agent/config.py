@@ -24,7 +24,8 @@ class StrategyConfig:
     max_gap_pct: float = 0.15              # ignore stocks with a >15% single-day move in the last 90 days (gappy / event-driven)
 
     # --- Risk ---
-    stop_loss_pct: float = 0.10            # hard stop 10% below entry fill (a GTT sell order at Zerodha); None = off
+    stop_loss_pct: float = 0.20            # hard stop 20% below entry fill (a GTT sell order at Zerodha); None = off.
+                                           # 20% caps disaster trades at ~-25% for ~0.5%/yr CAGR; 10-15% sell normal dips (STRATEGY.md)
     reentry_cooldown_days: int = 20        # after a stop-out, skip that stock for ~1 month to avoid whipsaws
     target_vol: float | None = None        # volatility targeting: invest min(1, target_vol / Nifty 63-day vol) of equity; None = off
     trim_tolerance: float = 0.25           # with target_vol, trim a holding only when it is >25% above its target value
