@@ -1,0 +1,10 @@
+__pycache__/
+.pytest_cache/
+.venv/
+data_cache/
+data_cache_long/
+results/
+results_*/
+results_*.log
+research_out/
+holdings.csv
